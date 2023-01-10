@@ -9,6 +9,7 @@ import UIKit
 
 class ViewController: UIViewController {
 
+    @IBOutlet weak var lapsTableView: UITableView!
     @IBOutlet weak var hourMinuteSecondLabel: UILabel!
     @IBOutlet weak var fractionLabel: UILabel!
     @IBOutlet weak var startStopButton: UIButton!
@@ -17,9 +18,12 @@ class ViewController: UIViewController {
     var timer: Timer = Timer()
     var timerCounting: Bool = false
     var (hours, minutes, seconds, fractions) = (0, 0, 0, 0)
+    var dataSourceArr = Array<String>()
     
     override func viewDidLoad() {
         super.viewDidLoad()
+       lapsTableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+        dataSourceArr = []
     }
     
     
@@ -43,7 +47,13 @@ class ViewController: UIViewController {
     @IBAction func lapResetTapped(_ sender: Any) {
         
         if (timerCounting) {
-            print("\(hourMinuteSecondLabel.text ?? "").\(fractionLabel.text ?? "")")
+            
+            var lapTime = ""
+            lapTime += hourMinuteSecondLabel.text ?? ""
+            lapTime += fractionLabel.text ?? ""
+            
+            dataSourceArr.insert(lapTime, at: dataSourceArr.count)
+            lapsTableView.reloadData()
         }
         else {
             lapResetButton.setTitle("Lap", for: .normal)
@@ -76,4 +86,22 @@ class ViewController: UIViewController {
         fractionLabel.text = ".\(fractions)"
     }
     
+}
+
+extension ViewController : UITableViewDelegate{
+
+}
+
+extension ViewController : UITableViewDataSource{
+      
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return dataSourceArr.count
+    }
+      
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
+        cell.textLabel?.text = dataSourceArr[indexPath.row]
+        cell.textLabel?.textAlignment = .center
+        return cell
+    }
 }
